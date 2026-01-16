@@ -1,0 +1,165 @@
+# Scalability Note:
+# To run multiple replicas (replicaCount > 1), you MUST use:
+# 1. Evaluate Storage: 's3', 'gcs', 'azure' OR a 'ReadWriteMany' PVC (NFS) for filesystem.
+# 2. Redis: Enabled (external or internal) for distributed locks and caching.
+replicaCount: 1
+
+image:
+  # Community Edition: ravhub/api
+  # Enterprise Edition: ravhub/enterprise-api
+  repository: ravhub/api
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+  apiPort: 3000
+
+# Authentication Configuration
+auth:
+  jwt:
+    # Secret key for signing tokens. If empty, it will be auto-generated on install.
+    # WARNING: If auto-generated, redeploying might rotate the secret effectively invalidating tokens
+    # unless you reuse the generated secret.
+    secret: ""
+    expiresIn: "1h"
+    refreshExpiresIn: "7d"
+
+# License Configuration (Enterprise Edition Only)
+license:
+  enabled: false # Set to true if deploying Enterprise Edition
+  # License Key for auto-activation during deployment bootstrap
+  key: ""
+
+# Docker Registry Configuration
+docker:
+  ports:
+    enabled: true
+    startPort: 5001
+    endPort: 5100
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+  hosts:
+    - host: ravhub.local
+      paths:
+        - path: /api(/|$)(.*)
+          pathType: ImplementationSpecific
+        - path: /()(.*)
+          pathType: ImplementationSpecific
+
+persistence:
+  enabled: true
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  # 50Gi default for Artifacts. Increase this significantly for production use if using Filesystem backend.
+  size: 50Gi
+  mountPath: /data/storage
+
+# Storage Backend Configuration
+storage:
+  # type: filesystem | s3 | gcs | azure
+  # Select ONE storage type to be the default backend for the application.
+  # While the application supports multiple backends internally, this setting defines
+  # where new artifacts will be stored by default upon installation.
+  #
+  # IMPORTANT NOTICE:
+  # 's3', 'gcs', and 'azure' backends are Enterprise features.
+  # They require:
+  # 1. The Enterprise Docker Image (ravhub/enterprise-api)
+  # 2. An ACTIVE ENTERPRISE LICENSE
+  type: filesystem
+  filesystem:
+    path: /data/storage
+  s3:
+    bucket: ""
+    region: "us-east-1"
+    accessKey: ""
+    secretKey: "" # or use existingSecret
+  gcs:
+    bucket: ""
+    projectId: ""
+    # To authenticate, please mount the service account key via extraVolumes/extraVolumeMounts or ENV VARS
+  azure:
+    container: ""
+    connectionString: "" # Use existingSecret if possible
+
+postgresql:
+  enabled: false # Ensure using external or subchart
+  primary:
+    persistence:
+      enabled: true
+      size: 8Gi
+  auth:
+    username: postgres
+    database: ravhub
+    password: "" # If empty, use existingSecret or generate
+
+externalDatabase:
+  host: postgres-service
+  port: 5432
+  user: postgres
+  database: ravhub
+  password: "" # If empty, needs existingSecret
+  existingSecret: ""
+
+redis:
+  enabled: false
+  image:
+    repository: redis
+    tag: 7.0-alpine
+    pullPolicy: IfNotPresent
+  resources: {}
+  persistence:
+    enabled: false
+    size: 1Gi
+    storageClass: ""
+  host: redis-service
+  port: 6379
+  password: ""
+  db: 0
+  existingSecret: ""
+
+# Additional generic environment variables
+env:
+  LOG_FORMAT: json
+
+resources:
+  limits:
+    cpu: 2000m
+    memory: 2Gi
+  requests:
+    cpu: 500m
+    memory: 1Gi
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "3000"
+  prometheus.io/path: "/metrics"
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

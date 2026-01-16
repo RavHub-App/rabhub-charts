@@ -1,0 +1,63 @@
+# values-minikube.yaml
+# Configuration for local Minikube testing with internal Postgres
+
+postgresql:
+  enabled: true
+  image:
+    tag: "latest"
+  auth:
+    postgresPassword: "password123"
+
+    username: postgres
+    database: ravhub
+  primary:
+    persistence:
+      enabled: false # Use ephemeral storage for faster test startup
+
+redis:
+  enabled: true
+  password: "password123"
+
+externalDatabase:
+  # These values are ignored because postgresql.enabled is true,
+  # but we keep them as placeholder.
+  host: "ignored"
+  port: 5432
+
+image:
+  repository: ravhub/api
+  tag: fixed
+  # Use Never to ensure we use the locally built image in Minikube cache
+  pullPolicy: Never
+
+storage:
+  type: filesystem
+  filesystem:
+    path: /data/storage
+
+persistence:
+  enabled: true
+  size: 1Gi
+  storageClass: "standard" # Minikube usually provides 'standard'
+
+ingress:
+  enabled: true
+  className: "nginx"
+  hosts:
+    - host: ravhub.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    enabled: false
+    items: []
+
+# Disable resource limits for local test to avoid scheduling issues on small VMs
+resources:
+  limits: {}
+  requests: {}
+
+env:
+  REDIS_ENABLED: "true"
+  SEED_CREATE_ADMIN: "true"
+  JWT_SECRET: "development_secret_key_12345"

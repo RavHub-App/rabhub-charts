@@ -1,0 +1,12 @@
+# Helm packages
+*.tgz
+*.lock
+
+# Initialized charts/dependencies (if using helm dependency update)
+charts/
+tmpcharts/
+
+# OS/IDEs
+.DS_Store
+.idea
+.vscode
