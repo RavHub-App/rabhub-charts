@@ -16,6 +16,8 @@ service:
   port: 80
   targetPort: 80
   apiPort: 3000
+  # nodePort: 30080  # Only used if type is NodePort
+  annotations: {} # Useful for cloud LoadBalancers
 
 # Authentication Configuration
 auth:
@@ -56,6 +58,10 @@ ingress:
           pathType: ImplementationSpecific
         - path: /()(.*)
           pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: ravhub-tls
+  #    hosts:
+  #      - ravhub.local
 
 persistence:
   enabled: true
@@ -112,18 +118,24 @@ externalDatabase:
   password: "" # If empty, needs existingSecret
   existingSecret: ""
 
+# Redis Configuration
+# If enabled=true, the bitnami/redis subchart will be installed.
+# You can configure it using standard bitnami values (e.g. redis.architecture=replication)
 redis:
   enabled: false
-  image:
-    repository: redis
-    tag: 7.0-alpine
-    pullPolicy: IfNotPresent
-  resources: {}
-  persistence:
-    enabled: false
-    size: 1Gi
-    storageClass: ""
-  host: redis-service
+  # Architecture: standalone | replication
+  architecture: standalone
+  auth:
+    enabled: true
+    password: "" # If empty, auto-generated
+  master:
+    persistence:
+      enabled: false
+      size: 1Gi
+
+# External Redis Connection (used if redis.enabled=false OR to override connection details)
+externalRedis:
+  host: "" # If empty and redis.enabled=true, we auto-configure connection to subchart
   port: 6379
   password: ""
   db: 0

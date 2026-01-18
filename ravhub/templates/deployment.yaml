@@ -125,20 +125,28 @@ spec:
                   {{- end }}
 
             # Redis Configuration
-            {{- if .Values.redis.enabled }}
+            {{- if or .Values.redis.enabled .Values.externalRedis.host }}
             - name: REDIS_ENABLED
               value: "true"
             - name: REDIS_HOST
-              value: {{ if .Values.redis.enabled }}{{ include "ravhub.fullname" . }}-redis{{ else }}{{ .Values.redis.host }}{{ end }}
+              {{- if .Values.redis.enabled }}
+              value: {{ .Release.Name }}-redis-master
+              {{- else }}
+              value: {{ .Values.externalRedis.host | quote }}
+              {{- end }}
             - name: REDIS_PORT
-              value: {{ .Values.redis.port | quote }}
-            {{- if or .Values.redis.password .Values.redis.existingSecret }}
+              value: {{ if .Values.redis.enabled }}"6379"{{ else }}{{ .Values.externalRedis.port | quote }}{{ end }}
+            
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ default (printf "%s-secrets" (include "ravhub.fullname" .)) .Values.redis.existingSecret }}
-                  key: {{ if .Values.redis.existingSecret }}password{{ else }}redis-password{{ end }}
-            {{- end }}
+                  {{- if .Values.redis.enabled }}
+                  name: {{ .Release.Name }}-redis
+                  key: redis-password
+                  {{- else }}
+                  name: {{ default (printf "%s-secrets" (include "ravhub.fullname" .)) .Values.externalRedis.existingSecret }}
+                  key: {{ if .Values.externalRedis.existingSecret }}password{{ else }}redis-password{{ end }}
+                  {{- end }}
             {{- end }}
 
             # Storage Configuration
