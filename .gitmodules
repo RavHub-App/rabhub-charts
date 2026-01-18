@@ -1,0 +1,12 @@
+[submodule "ravhub-core"]
+	path = ravhub-core
+	url = git@github.com:RavHub-App/ravhub-core.git
+[submodule "ravhub-enterprise"]
+	path = ravhub-enterprise
+	url = git@github.com:RavHub-App/ravhub-enterprise.git
+[submodule "ravhub-license-portal"]
+	path = ravhub-license-portal
+	url = git@github.com:RavHub-App/ravhub-license-portal.git
+[submodule "ravhub-charts"]
+	path = ravhub-charts
+	url = git@github.com:RavHub-App/rabhub-charts.git

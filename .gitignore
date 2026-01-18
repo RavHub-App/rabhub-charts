@@ -1,0 +1,16 @@
+# Agent & System
+.benchmark
+.keys
+.vscode
+.idea
+.git
+
+# Logs & Data
+*.log
+test-logs
+data
+backup
+
+# OS
+.DS_Store
+Thumbs.db
