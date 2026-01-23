@@ -1,0 +1,145 @@
+version: '3.8'
+
+services:
+  # --- DATABASES ---
+
+  # Main Database for RavHub (Core/Enterprise)
+  db-ravhub:
+    image: postgres:15-alpine
+    container_name: ravhub-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${RAVHUB_DB_USER}
+      POSTGRES_DB: ${RAVHUB_DB_NAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ravhub_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${RAVHUB_DB_USER} -d ${RAVHUB_DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Database for License Portal
+  db-portal:
+    image: postgres:15-alpine
+    container_name: portal-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${PORTAL_DB_USER}
+      POSTGRES_DB: ${PORTAL_DB_NAME}
+      POSTGRES_PASSWORD: ${PORTAL_DB_PASSWORD}
+    volumes:
+      - portal_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PORTAL_DB_USER} -d ${PORTAL_DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Shared Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: ravhub-redis
+    restart: always
+    command: redis-server --requirepass ${POSTGRES_PASSWORD} # Reusing pass for simplicity
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Database for Nginx Proxy Manager
+  db-npm:
+    image: mariadb:10.11
+    container_name: ravhub-npm-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${POSTGRES_PASSWORD}
+      MYSQL_DATABASE: ${NPM_DB_NAME}
+      MYSQL_USER: ${NPM_DB_USER}
+      MYSQL_PASSWORD: ${NPM_DB_PASSWORD}
+    volumes:
+      - npm_db_data:/var/lib/mysql
+
+  # --- APPLICATIONS ---
+
+  # RavHub Enterprise Edition
+  ravhub:
+    build:
+      context: .
+      dockerfile: Dockerfile.enterprise
+    container_name: ravhub-enterprise
+    restart: always
+    ports:
+      - "5001-5100:5001-5100" # Docker registry ranges
+    environment:
+      - POSTGRES_HOST=db-ravhub
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=${RAVHUB_DB_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${RAVHUB_DB_NAME}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${POSTGRES_PASSWORD}
+      - REDIS_ENABLED=true
+      - JWT_SECRET=${JWT_SECRET}
+      - STORAGE_TYPE=${STORAGE_TYPE}
+      - STORAGE_PATH=${STORAGE_PATH}
+    volumes:
+      - ravhub_storage:${STORAGE_PATH}
+    depends_on:
+      db-ravhub:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # License Portal (SaaS Dashboard)
+  license-portal:
+    build:
+      context: ./ravhub-license-portal
+      dockerfile: Dockerfile.prod
+      args:
+        - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
+        - NEXT_PUBLIC_PRODUCT_DOWNLOAD_URL=${NEXT_PUBLIC_PRODUCT_DOWNLOAD_URL}
+        - NEXT_PUBLIC_ENABLE_REGISTRATION=${NEXT_PUBLIC_ENABLE_REGISTRATION}
+        - NEXT_PUBLIC_ENABLE_PAYMENTS=${NEXT_PUBLIC_ENABLE_PAYMENTS}
+    container_name: license-portal
+    restart: always
+    environment:
+      - DATABASE_URL=postgresql://${PORTAL_DB_USER}:${PORTAL_DB_PASSWORD}@db-portal:5432/${PORTAL_DB_NAME}
+      - NEXTAUTH_URL=${NEXTAUTH_URL}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+    depends_on:
+      db-portal:
+        condition: service_healthy
+
+  # Nginx Proxy Manager (Unified Gateway)
+  npm:
+    image: 'jc21/nginx-proxy-manager:latest'
+    container_name: ravhub-proxy-manager
+    restart: always
+    ports:
+      - '80:80'   # HTTP traffic
+      - '81:81'   # NPM Admin UI
+      - '443:443' # HTTPS traffic
+    environment:
+      - DB_MYSQL_HOST=db-npm
+      - DB_MYSQL_PORT=3306
+      - DB_MYSQL_USER=${NPM_DB_USER}
+      - DB_MYSQL_PASSWORD=${NPM_DB_PASSWORD}
+      - DB_MYSQL_NAME=${NPM_DB_NAME}
+    volumes:
+      - npm_data:/data
+      - npm_letsencrypt:/etc/letsencrypt
+    depends_on:
+      - db-npm
+
+volumes:
+  ravhub_db_data:
+  portal_db_data:
+  npm_db_data:
+  ravhub_storage:
+  npm_data:
+  npm_letsencrypt:
