@@ -139,7 +139,7 @@ You are responsible for keeping this context alive. **Do not let the map drift f
 
 - **Be Concise**: Use bullet points.
 - **Be Local**: Update `ravhub-core/AGENTS.md` for backend specific changes, and `Global Context` only for system-wide changes.
-- **Propagate**: If you update `Global Context`, verify copies (`GEMINI.md`, `CLAUDE.md`) are synced.
+- **Propagate**: If you update `Global Context`, verify `CLAUDE.md` is synced.
 
 ---
 
