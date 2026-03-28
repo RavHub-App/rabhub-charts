@@ -35,8 +35,10 @@ RUN mkdir -p apps/api/src/modules/backup && \
 # 2. License Module (Overwrites the stub in core)
 RUN cp -r enterprise-src/modules/license/* apps/api/src/modules/license/
 
-# 3. Enterprise Plugins (S3, Azure, GCS, etc.)
-RUN cp -r enterprise-src/modules/plugins/impl/* apps/api/src/modules/plugins/impl/
+# 3. Enterprise Plugins (S3, Azure, GCS, etc.) - Skip if not present
+RUN if [ -d "enterprise-src/modules/plugins/impl" ]; then \
+    cp -r enterprise-src/modules/plugins/impl/* apps/api/src/modules/plugins/impl/; \
+    fi
 
 # 4. Storage Adapters (Enterprise-specific)
 RUN mkdir -p apps/api/src/enterprise/storage && \

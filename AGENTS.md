@@ -114,6 +114,13 @@ RavHub is a distributed package management ecosystem composed of four gravitatio
 
 ---
 
+## 🚀 Production Environment
+
+- **Production Server**: `213.165.74.85`
+- **Project Path**: `.agent-local/production-context.md`
+
+---
+
 ## 🕵️ Verification Protocol
 
 If user asks **"Status Check"**, respond:
