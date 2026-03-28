@@ -48,6 +48,11 @@ To enable `replicaCount > 1`:
 2. **Ingress**: Ensure `proxy-body-size: 0` for Docker uploads.
 3. **Resources**: Set limits to avoid OOMKilled on buffer operations.
 
+## 🚀 Production Environment
+
+- **Production Server**: `213.165.74.85`
+- **Project Path**: `/root/projects/ravhub`
+
 ## 🧑‍💻 Coding Standards (Local)
 
 1. **Helm Templates**: Keep templates simple. Use `_helpers.tpl` for complex logic.
