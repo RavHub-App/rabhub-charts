@@ -1,3 +1,4 @@
+{{- include "ravhub.validateConfiguration" . }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -37,7 +38,7 @@ spec:
             readOnlyRootFilesystem: false
             runAsNonRoot: true
             runAsUser: 1000
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ include "ravhub.image" . }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
@@ -90,7 +91,7 @@ spec:
               value: {{ .Values.auth.jwt.refreshExpiresIn | quote }}
 
             - name: LICENSE_KEY
-              value: {{ .Values.license.key | quote }}
+              value: {{ include "ravhub.licenseKey" . | quote }}
 
             # Database Configuration
             - name: POSTGRES_HOST

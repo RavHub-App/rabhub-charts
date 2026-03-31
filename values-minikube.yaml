@@ -25,8 +25,9 @@ redis:
       enabled: false
 
 image:
-  repository: ravhub/api
-  tag: v6
+  registry: ""
+  repository: ravhub-core
+  tag: latest
   pullPolicy: Never
 
 storage:

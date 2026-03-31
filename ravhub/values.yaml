@@ -5,11 +5,13 @@
 replicaCount: 1
 
 image:
-  # Community Edition: ravhub/api
-  # Enterprise Edition: ravhub/enterprise-api
-  repository: ravhub/api
+  registry: registry.ravhub.app
+  repository: ravhub-core
+  enterpriseRepository: ravhub/enterprise-api
   pullPolicy: IfNotPresent
   tag: "latest"
+
+imagePullSecrets: []
 
 service:
   type: ClusterIP
@@ -81,7 +83,7 @@ storage:
   # IMPORTANT NOTICE:
   # 's3', 'gcs', and 'azure' backends are Enterprise features.
   # They require:
-  # 1. The Enterprise Docker Image (ravhub/enterprise-api)
+  # 1. The Enterprise Docker Image
   # 2. An ACTIVE ENTERPRISE LICENSE
   type: filesystem
   filesystem:
@@ -100,7 +102,7 @@ storage:
     connectionString: "" # Use existingSecret if possible
 
 postgresql:
-  enabled: false # Ensure using external or subchart
+  enabled: true
   primary:
     persistence:
       enabled: true
@@ -111,7 +113,7 @@ postgresql:
     password: "" # If empty, use existingSecret or generate
 
 externalDatabase:
-  host: postgres-service
+  host: ""
   port: 5432
   user: postgres
   database: ravhub

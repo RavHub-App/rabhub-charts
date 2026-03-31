@@ -18,7 +18,7 @@ Production-ready Helm chart for deploying RavHub on-premise package registry.
 - Kubernetes 1.19+
 - Helm 3.0+
 - PersistentVolume provisioner (for artifact storage)
-- External PostgreSQL database
+- Image pull access to the RavHub registry
 
 ## Installation
 
@@ -26,18 +26,42 @@ Production-ready Helm chart for deploying RavHub on-premise package registry.
 
 ```bash
 helm install ravhub ./charts/ravhub \
+  --set imagePullSecrets[0].name=ravhub-registry
+```
+
+The default chart values are aimed at customer-managed cloud installs:
+
+- RavHub application images are pulled from `registry.ravhub.app`
+- community edition uses `ravhub-core`
+- enterprise edition uses `ravhub/enterprise-api`
+- third-party dependencies such as Bitnami PostgreSQL and Redis stay on Docker Hub by default
+- bundled PostgreSQL is enabled by default for a working first install
+
+### Production Installation with External PostgreSQL
+
+```bash
+helm install ravhub ./charts/ravhub \
+  --set postgresql.enabled=false \
   --set externalDatabase.host=postgres.example.com \
-  --set externalDatabase.password=your-secure-password
+  --set externalDatabase.existingSecret=ravhub-db \
+  --set imagePullSecrets[0].name=ravhub-registry
+```
+
+### Enterprise Installation
+
+```bash
+helm install ravhub-enterprise ./charts/ravhub \
+  --set license.enabled=true \
+  --set license.key=your-license-key \
+  --set imagePullSecrets[0].name=ravhub-registry
 ```
 
 ### With Redis Enabled
 
 ```bash
 helm install ravhub ./charts/ravhub \
-  --set externalDatabase.host=postgres.example.com \
-  --set externalDatabase.password=your-secure-password \
-  --set redis.enabled=true \
-  --set redis.password=redis-secure-password
+  --set imagePullSecrets[0].name=ravhub-registry \
+  --set redis.enabled=true
 ```
 
 ### With Custom Docker Ports
@@ -56,19 +80,29 @@ helm install ravhub ./charts/ravhub \
 | Parameter          | Description        | Default      |
 | ------------------ | ------------------ | ------------ |
 | `replicaCount`     | Number of replicas | `1`          |
-| `image.repository` | Image repository   | `ravhub/api` |
+| `image.registry` | RavHub image registry | `registry.ravhub.app` |
+| `image.repository` | Image repository   | `ravhub-core` |
+| `image.enterpriseRepository` | Enterprise image repository | `ravhub/enterprise-api` |
 | `image.tag`        | Image tag          | `latest`     |
+| `imagePullSecrets` | Registry pull secrets | `[]` |
 | `service.type`     | Service type       | `ClusterIP`  |
 | `service.port`     | HTTP service port  | `80`         |
 | `service.apiPort`  | API service port   | `3000`       |
+
+### Edition Parameters
+
+| Parameter          | Description | Default |
+| ------------------ | ----------- | ------- |
+| `license.enabled`  | Deploy enterprise image and features | `false` |
+| `license.key`      | Enterprise license key | `""` |
 
 ### Docker Ports Configuration
 
 | Parameter               | Description                 | Default |
 | ----------------------- | --------------------------- | ------- |
-| `dockerPorts.enabled`   | Enable dynamic Docker ports | `true`  |
-| `dockerPorts.startPort` | Start of port range         | `5001`  |
-| `dockerPorts.endPort`   | End of port range           | `5100`  |
+| `docker.ports.enabled`   | Enable dynamic Docker ports | `true`  |
+| `docker.ports.startPort` | Start of port range         | `5001`  |
+| `docker.ports.endPort`   | End of port range           | `5100`  |
 
 **Important**: Each Docker repository created in RavHub will automatically get assigned a port from this range. Make sure your firewall/load balancer allows traffic on these ports.
 
@@ -86,12 +120,13 @@ helm install ravhub ./charts/ravhub \
 ### Database Configuration
 
 | Parameter                         | Description                      | Default                   |
+| `postgresql.enabled`              | Deploy bundled PostgreSQL        | `true`                    |
 | --------------------------------- | -------------------------------- | ------------------------- |
-| `externalDatabase.host`           | PostgreSQL host                  | `postgres-service`        |
+| `externalDatabase.host`           | PostgreSQL host                  | `""`                     |
 | `externalDatabase.port`           | PostgreSQL port                  | `5432`                    |
 | `externalDatabase.user`           | PostgreSQL user                  | `postgres`                |
 | `externalDatabase.database`       | Database name                    | `ravhub`                  |
-| `externalDatabase.password`       | Database password                | `change-me-in-production` |
+| `externalDatabase.password`       | Database password                | `""`                     |
 | `externalDatabase.existingSecret` | Use existing secret for password | `""`                      |
 
 ### Storage Configuration

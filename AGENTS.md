@@ -10,7 +10,7 @@ deployment_targets:
   - "eks"
   - "gke"
 variables:
-  - "global.imageRegistry"
+  - "image.registry"
   - "license.enabled"
 coding_standards:
   - "No redundant comments; variable names/values must be descriptive."
@@ -32,8 +32,13 @@ Supports **Community** & **Enterprise** via toggles.
 
 Controlled by `license.enabled`:
 
-- `false` (Default): Deploys `ravhub/api`.
+- `false` (Default): Deploys `ravhub-core`.
 - `true`: Deploys `ravhub/enterprise-api`. Requires `license.key`.
+
+### Image Source Rules
+
+- Only RavHub application images are served from the RavHub registry.
+- Third-party images such as Bitnami PostgreSQL/Redis must keep using Docker Hub unless explicitly overridden by the operator.
 
 ### Scalability (HA)
 

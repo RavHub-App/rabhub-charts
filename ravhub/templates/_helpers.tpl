@@ -58,3 +58,44 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{- define "ravhub.imageRepository" -}}
+{{- if .Values.license.enabled -}}
+{{- .Values.image.enterpriseRepository | default "ravhub/enterprise-api" -}}
+{{- else -}}
+{{- .Values.image.repository | default "ravhub-core" -}}
+{{- end -}}
+{{- end }}
+
+{{- define "ravhub.image" -}}
+{{- $registry := .Values.image.registry | default "" | trimSuffix "/" -}}
+{{- $repository := include "ravhub.imageRepository" . -}}
+{{- if $registry -}}
+{{- printf "%s/%s:%s" $registry $repository (.Values.image.tag | default .Chart.AppVersion) -}}
+{{- else -}}
+{{- printf "%s:%s" $repository (.Values.image.tag | default .Chart.AppVersion) -}}
+{{- end -}}
+{{- end }}
+
+{{- define "ravhub.licenseKey" -}}
+{{- if .Values.license.enabled -}}
+{{- required "license.key is required when license.enabled=true" .Values.license.key -}}
+{{- else -}}
+{{- .Values.license.key -}}
+{{- end -}}
+{{- end }}
+
+{{- define "ravhub.validateConfiguration" -}}
+{{- if and (not .Values.postgresql.enabled) (not .Values.externalDatabase.host) -}}
+{{- fail "externalDatabase.host is required when postgresql.enabled=false" -}}
+{{- end -}}
+{{- if and (not .Values.postgresql.enabled) (not .Values.externalDatabase.existingSecret) (not .Values.externalDatabase.password) -}}
+{{- fail "externalDatabase.password or externalDatabase.existingSecret is required when postgresql.enabled=false" -}}
+{{- end -}}
+{{- if and (ne .Values.storage.type "filesystem") (not .Values.license.enabled) -}}
+{{- fail (printf "storage.type=%s requires license.enabled=true" .Values.storage.type) -}}
+{{- end -}}
+{{- if and .Values.license.enabled (not .Values.license.key) -}}
+{{- fail "license.key is required when license.enabled=true" -}}
+{{- end -}}
+{{- end }}
