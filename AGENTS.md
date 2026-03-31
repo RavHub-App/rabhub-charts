@@ -50,8 +50,7 @@ To enable `replicaCount > 1`:
 
 ## 🚀 Production Environment
 
-- **Production Server**: `213.165.74.82`
-- **Project Path**: `/root/projects/ravhub`
+- **Sensitive Infra Context**: kept in local-only agent context under `.agent-local/production-context.md` and must never be committed.
 
 ## 🧑‍💻 Coding Standards (Local)
 
