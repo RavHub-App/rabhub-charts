@@ -7,7 +7,7 @@ replicaCount: 1
 image:
   registry: registry.ravhub.app
   repository: ravhub-core
-  enterpriseRepository: ravhub/enterprise-api
+  enterpriseRepository: ravhub-enterprise
   pullPolicy: IfNotPresent
   tag: "latest"
 

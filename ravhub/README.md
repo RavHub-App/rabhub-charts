@@ -33,7 +33,7 @@ The default chart values are aimed at customer-managed cloud installs:
 
 - RavHub application images are pulled from `registry.ravhub.app`
 - community edition uses `ravhub-core`
-- enterprise edition uses `ravhub/enterprise-api`
+- enterprise edition uses `ravhub-enterprise`
 - third-party dependencies such as Bitnami PostgreSQL and Redis stay on Docker Hub by default
 - bundled PostgreSQL is enabled by default for a working first install
 
@@ -82,7 +82,7 @@ helm install ravhub ./charts/ravhub \
 | `replicaCount`     | Number of replicas | `1`          |
 | `image.registry` | RavHub image registry | `registry.ravhub.app` |
 | `image.repository` | Image repository   | `ravhub-core` |
-| `image.enterpriseRepository` | Enterprise image repository | `ravhub/enterprise-api` |
+| `image.enterpriseRepository` | Enterprise image repository | `ravhub-enterprise` |
 | `image.tag`        | Image tag          | `latest`     |
 | `imagePullSecrets` | Registry pull secrets | `[]` |
 | `service.type`     | Service type       | `ClusterIP`  |

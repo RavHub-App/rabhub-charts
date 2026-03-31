@@ -61,7 +61,7 @@ Create the name of the service account to use
 
 {{- define "ravhub.imageRepository" -}}
 {{- if .Values.license.enabled -}}
-{{- .Values.image.enterpriseRepository | default "ravhub/enterprise-api" -}}
+{{- .Values.image.enterpriseRepository | default "ravhub-enterprise" -}}
 {{- else -}}
 {{- .Values.image.repository | default "ravhub-core" -}}
 {{- end -}}

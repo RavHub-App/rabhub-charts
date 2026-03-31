@@ -33,7 +33,7 @@ Supports **Community** & **Enterprise** via toggles.
 Controlled by `license.enabled`:
 
 - `false` (Default): Deploys `ravhub-core`.
-- `true`: Deploys `ravhub/enterprise-api`. Requires `license.key`.
+- `true`: Deploys `ravhub-enterprise`. Requires `license.key`.
 
 ### Image Source Rules
 
