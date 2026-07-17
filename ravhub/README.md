@@ -22,10 +22,17 @@ Production-ready Helm chart for deploying RavHub on-premise package registry.
 
 ## Installation
 
+### Add Helm Repository
+
+```bash
+helm repo add ravhub https://repo.ravhub.app
+helm repo update
+```
+
 ### Basic Installation
 
 ```bash
-helm install ravhub ./charts/ravhub \
+helm install ravhub ravhub/ravhub \
   --set imagePullSecrets[0].name=ravhub-registry
 ```
 
@@ -40,7 +47,7 @@ The default chart values are aimed at customer-managed cloud installs:
 ### Production Installation with External PostgreSQL
 
 ```bash
-helm install ravhub ./charts/ravhub \
+helm install ravhub ravhub/ravhub \
   --set postgresql.enabled=false \
   --set externalDatabase.host=postgres.example.com \
   --set externalDatabase.existingSecret=ravhub-db \
@@ -50,7 +57,7 @@ helm install ravhub ./charts/ravhub \
 ### Enterprise Installation
 
 ```bash
-helm install ravhub-enterprise ./charts/ravhub \
+helm install ravhub-enterprise ravhub/ravhub \
   --set license.enabled=true \
   --set license.key=your-license-key \
   --set imagePullSecrets[0].name=ravhub-registry
@@ -59,7 +66,7 @@ helm install ravhub-enterprise ./charts/ravhub \
 ### With Redis Enabled
 
 ```bash
-helm install ravhub ./charts/ravhub \
+helm install ravhub ravhub/ravhub \
   --set imagePullSecrets[0].name=ravhub-registry \
   --set redis.enabled=true
 ```
@@ -67,7 +74,7 @@ helm install ravhub ./charts/ravhub \
 ### With Custom Docker Ports
 
 ```bash
-helm install ravhub ./charts/ravhub \
+helm install ravhub ravhub/ravhub \
   --set dockerPorts.enabled=true \
   --set dockerPorts.startPort=5001 \
   --set dockerPorts.endPort=5050
@@ -237,13 +244,13 @@ If memory usage is high:
 1. Enable Redis for caching:
 
 ```bash
-helm upgrade ravhub ./charts/ravhub --set redis.enabled=true
+helm upgrade ravhub ravhub/ravhub --set redis.enabled=true
 ```
 
 2. Increase memory limits:
 
 ```bash
-helm upgrade ravhub ./charts/ravhub --set resources.limits.memory=4Gi
+helm upgrade ravhub ravhub/ravhub --set resources.limits.memory=4Gi
 ```
 
 ### Slow Performance
@@ -251,19 +258,19 @@ helm upgrade ravhub ./charts/ravhub --set resources.limits.memory=4Gi
 1. Enable autoscaling:
 
 ```bash
-helm upgrade ravhub ./charts/ravhub --set autoscaling.enabled=true
+helm upgrade ravhub ravhub/ravhub --set autoscaling.enabled=true
 ```
 
 2. Use faster storage class (SSD):
 
 ```bash
-helm upgrade ravhub ./charts/ravhub --set persistence.storageClass=fast-ssd
+helm upgrade ravhub ravhub/ravhub --set persistence.storageClass=fast-ssd
 ```
 
 ## Upgrading
 
 ```bash
-helm upgrade ravhub ./charts/ravhub -f custom-values.yaml
+helm upgrade ravhub ravhub/ravhub -f custom-values.yaml
 ```
 
 ## Uninstalling
