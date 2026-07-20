@@ -22,19 +22,6 @@ Production-ready Helm chart for deploying RavHub on-premise package registry.
 
 ## Installation
 
-### Add Helm Repository
-
-```bash
-helm repo add ravhub https://repo.ravhub.app/repository/ravhub-charts
-helm repo update
-```
-
-### Inspect Default Values
-
-```bash
-helm show values ravhub/ravhub > values.yaml
-```
-
 ### Basic Installation
 
 ```bash
