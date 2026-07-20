@@ -4,6 +4,12 @@
 # 2. Redis: Enabled (external or internal) for distributed locks and caching.
 replicaCount: 1
 
+# Global settings shared across subcharts (PostgreSQL, Redis)
+# Set this to override the container registry for ALL images (RavHub + Bitnami dependencies)
+# Example: global.imageRegistry: "my-registry.internal:5000"
+global:
+  imageRegistry: ""
+
 image:
   registry: registry.ravhub.app
   repository: ravhub-core
