@@ -79,6 +79,13 @@ spec:
               value: {{ $value | quote }}
             {{- end }}
 
+            # Public API URL for install command hints in the UI
+            # Without this, commands show localhost:3000 instead of the public domain
+            - name: API_HOST
+              value: {{ .Values.api.host | quote }}
+            - name: API_PROTOCOL
+              value: {{ .Values.api.protocol | quote }}
+
             # Auth Configuration
             - name: JWT_SECRET
               valueFrom:

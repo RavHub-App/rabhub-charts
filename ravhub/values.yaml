@@ -152,6 +152,12 @@ externalRedis:
   existingSecret: ""
 
 # Additional generic environment variables
+# Public API URL used in install command hints shown in the UI
+# Set these to match your public endpoint so users see the correct helm repo add URL
+api:
+  host: ""
+  protocol: "https"
+
 env:
   LOG_FORMAT: json
 
