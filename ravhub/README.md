@@ -25,8 +25,7 @@ Production-ready Helm chart for deploying RavHub on-premise package registry.
 ### Basic Installation
 
 ```bash
-helm install ravhub ravhub/ravhub \
-  --set imagePullSecrets[0].name=ravhub-registry
+helm install ravhub ravhub/ravhub
 ```
 
 The default chart values are aimed at customer-managed cloud installs:
@@ -43,8 +42,7 @@ The default chart values are aimed at customer-managed cloud installs:
 helm install ravhub ravhub/ravhub \
   --set postgresql.enabled=false \
   --set externalDatabase.host=postgres.example.com \
-  --set externalDatabase.existingSecret=ravhub-db \
-  --set imagePullSecrets[0].name=ravhub-registry
+  --set externalDatabase.existingSecret=ravhub-db
 ```
 
 ### Enterprise Installation
@@ -52,15 +50,13 @@ helm install ravhub ravhub/ravhub \
 ```bash
 helm install ravhub-enterprise ravhub/ravhub \
   --set license.enabled=true \
-  --set license.key=your-license-key \
-  --set imagePullSecrets[0].name=ravhub-registry
+  --set license.key=your-license-key
 ```
 
 ### With Redis Enabled
 
 ```bash
 helm install ravhub ravhub/ravhub \
-  --set imagePullSecrets[0].name=ravhub-registry \
   --set redis.enabled=true
 ```
 
