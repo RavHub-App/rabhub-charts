@@ -109,10 +109,6 @@ storage:
 
 postgresql:
   enabled: true
-  image:
-    registry: docker.io
-    repository: bitnami/postgresql
-    tag: 16
   primary:
     persistence:
       enabled: true
@@ -135,10 +131,6 @@ externalDatabase:
 # You can configure it using standard bitnami values (e.g. redis.architecture=replication)
 redis:
   enabled: false
-  image:
-    registry: docker.io
-    repository: bitnami/redis
-    tag: 7.4
   # Architecture: standalone | replication
   architecture: standalone
   auth:
