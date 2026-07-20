@@ -15,7 +15,9 @@ image:
   repository: ravhub-core
   enterpriseRepository: ravhub-enterprise
   pullPolicy: IfNotPresent
-  tag: "latest"
+  # Pin to a specific release version for reproducible deployments.
+  # Override with --set image.tag=x.y.z for upgrades.
+  tag: "0.1.0"
 
 imagePullSecrets: []
 
