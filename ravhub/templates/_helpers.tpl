@@ -68,7 +68,7 @@ Create the name of the service account to use
 {{- end }}
 
 {{- define "ravhub.image" -}}
-{{- $registry := .Values.image.registry | default .Values.global.imageRegistry | default "" | trimSuffix "/" -}}
+{{- $registry := .Values.global.imageRegistry | default .Values.image.registry | default "" | trimSuffix "/" -}}
 {{- $repository := include "ravhub.imageRepository" . -}}
 {{- if $registry -}}
 {{- printf "%s/%s:%s" $registry $repository (.Values.image.tag | default .Chart.AppVersion) -}}
